@@ -1,0 +1,149 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
+
+    <title>{% block head_title %}Survey Landing{% endblock %}</title>
+
+
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- <img src="{% static "my_app/myexample.jpg" %}" alt="My image"/> -->
+    <!-- Custom styles for this template -->
+    <!-- <link href="navbar-static-top.css" rel="stylesheet"> -->
+    <link href="{% static 'css/navbar-static-top.css' %}" rel="stylesheet">
+     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+
+         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script>
+  $(function() {
+    var availableTags = [
+      "Bangalore",
+      "Pune",
+      "Mumbai",
+      "Chennai",
+      "Hyderabad"
+
+    ];
+    $( "#id_city" ).autocomplete({
+      source: availableTags
+    });
+  });
+
+
+
+  </script>
+
+
+
+
+    <script type="text/javascript">
+
+  $(function () {
+
+
+    $("#id_apartment").autocomplete({
+      minLenght: 2,
+      source: function(request,response) {  
+        
+   
+        // overlaydiv.style.top = "31.5%";
+        // overlaydiv.style.left = "88%";
+        $("#selectPropertyId").empty();
+        $('#select2-chosen-2').text('--Select Any Property--');
+        var city_name=$('#id_city').val();
+        var area_name=$('#id_apartment').val();
+        data_params = "city_name="+city_name+"&area_name="+area_name
+        $.ajax({
+          url: "{% url 'getApartment' %}", 
+          // url:"http://localhost:8000/getAreaDetail",
+          type:'GET',
+          data:data_params,
+          success: function(result){
+            if(typeof result ==="string"){
+              result=JSON.parse(result);
+             // console.log(result);
+            }
+            if(result !=null && result !="" && !$.isEmptyObject(result)){
+              console.log(result['data']);
+              response($.map(result['data'], function( el) {
+                return {
+                  label: el["name"],
+                  value: el["name"],
+                  text: el["name"]
+                                  }
+              }));
+            }else{
+              response(["No Data Found"]);
+            }  
+
+          },
+          error:function(result){
+            response(["No Data Found"])
+
+          }
+        });
+      },
+      select: function(event, ui) {
+        // prevent autocomplete from updating the textbox
+        event.preventDefault();
+        if(ui.item.label !="No Data Found"){
+          $('#id_apartment').val(ui.item.label);
+
+          if(ui.item.text !=null && ui.item.text !=undefined && ui.item.text !=""){ 
+            $('#id_apartment').val(ui.item.text);
+          }
+        }
+        // navigate to the selected item's url
+        //window.open(ui.item.url);
+      }
+    });
+
+    $("#id_city").select();
+    $("#id_apartment").select();
+    //$("#fileId").change(readURL);
+
+  });
+
+
+  
+
+  function removeAlert (argument) {
+    var overlay = document.getElementById("overlay");
+    var popup = document.getElementById("popup");
+    overlay.style.display = "none";
+    popup.style.display = "none";
+  }
+</script>
+
+  </head>
+
+  <body>
+
+    <div class="container">
+        
+            {% block content %}
+
+            {% endblock %}
+              
+
+    </div>
+
+    
+    
+  </body>
+</html>
